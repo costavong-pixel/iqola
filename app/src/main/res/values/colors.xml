@@ -1,0 +1,8 @@
+<resources>
+    <color name="ink">#10122B</color>
+    <color name="navy">#181A3B</color>
+    <color name="page_bg">#F6F7FF</color>
+    <color name="white">#FFFFFF</color>
+    <color name="blue">#5B63FF</color>
+    <color name="muted">#6E7396</color>
+</resources>
