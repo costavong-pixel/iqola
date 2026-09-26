@@ -43,8 +43,8 @@ public class MainActivity extends Activity {
 }
 
 /**
- * IQOla's premium Water Sort template. The first two moves are demonstrated in-context before
- * play begins, so players learn the rule by watching the board rather than reading an instruction.
+ * IQOla's premium Water Sort template. The opening teaches the first two pours in-context: the
+ * player makes each move, while a lightweight hint and a clear skip path keep the game flowing.
  */
 class IQOlaView extends View {
     static final int NAVY = Color.rgb(5, 8, 29);
@@ -92,6 +92,8 @@ class IQOlaView extends View {
     private final RectF[] tubeRects = new RectF[TUBE_COUNT];
     private final RectF undoRect = new RectF();
     private final RectF restartRect = new RectF();
+    private final RectF hintRect = new RectF();
+    private final RectF skipDemoRect = new RectF();
     private final RectF nextRect = new RectF();
     private final RectF adRect = new RectF();
     private final Bitmap[] chamberBackgrounds;
@@ -115,6 +117,7 @@ class IQOlaView extends View {
     private boolean tutorialActive;
     private TutorialStage tutorialStage = TutorialStage.PLAYER;
     private int tutorialStep;
+    private long guideHintUntil;
     private boolean countdownRunning;
     private long countdownRemainingMs = LEVEL_TIME_MS;
     private long countdownResumedAt;
@@ -186,7 +189,24 @@ class IQOlaView extends View {
             if (nextRect.contains(x, y)) startLevel(level);
             return true;
         }
-        if (tutorialActive || animating) return true;
+        if (animating) return true;
+        if (tutorialActive) {
+            if (hintRect.contains(x, y)) {
+                showTutorialHint();
+                return true;
+            }
+            if (skipDemoRect.contains(x, y)) {
+                releasePlayerToCountdown();
+                return true;
+            }
+            for (int i = 0; i < TUBE_COUNT; i++) {
+                if (tubeRects[i].contains(x, y)) {
+                    tapTutorialTube(i);
+                    return true;
+                }
+            }
+            return true;
+        }
         if (undoRect.contains(x, y)) {
             undoMove();
             return true;
@@ -251,14 +271,18 @@ class IQOlaView extends View {
                 width / 2f - dp(68) + controlSize / 2f, controlY + controlSize / 2f);
         restartRect.set(width / 2f + dp(68) - controlSize / 2f, controlY - controlSize / 2f,
                 width / 2f + dp(68) + controlSize / 2f, controlY + controlSize / 2f);
+        float tutorialActionWidth = dp(88);
+        float tutorialActionHeight = dp(42);
+        hintRect.set(dp(24), controlY - tutorialActionHeight / 2f,
+                dp(24) + tutorialActionWidth, controlY + tutorialActionHeight / 2f);
+        skipDemoRect.set(width - dp(24) - tutorialActionWidth, controlY - tutorialActionHeight / 2f,
+                width - dp(24), controlY + tutorialActionHeight / 2f);
         adRect.set(dp(20), height - dp(58), width - dp(20), height - dp(14));
         nextRect.set(width / 2f - dp(112), height / 2f + dp(106), width / 2f + dp(112), height / 2f + dp(160));
     }
 
     private void startLevel(int requestedLevel) {
         handler.removeCallbacks(animationFrame);
-        handler.removeCallbacks(tutorialFrame);
-        handler.removeCallbacks(startCountdownFrame);
         long now = SystemClock.uptimeMillis();
         level = Math.max(1, requestedLevel);
         previousBackgroundIndex = backgroundIndex;
@@ -277,6 +301,7 @@ class IQOlaView extends View {
         countdownRunning = false;
         countdownRemainingMs = LEVEL_TIME_MS;
         countdownResumedAt = 0L;
+        guideHintUntil = 0L;
         for (ArrayList<Integer> tube : tubes) tube.clear();
         for (int colour : SPECTRUM) {
             ArrayList<Integer> tube = findFirstEmptyTube();
@@ -348,34 +373,13 @@ class IQOlaView extends View {
         tutorialActive = solutionMoves.size() >= 2;
         tutorialStage = tutorialActive ? TutorialStage.SOURCE : TutorialStage.PLAYER;
         if (tutorialActive) {
-            message = "WATCH THE FIRST TWO MOVES • TIMER PAUSED";
+            message = "MOVE 1 OF 2 • TAP THE CYAN GLOW";
             messageUntil = 0L;
-            handler.postDelayed(tutorialFrame, 850L);
+            guideHintUntil = SystemClock.uptimeMillis() + 4_000L;
         } else {
             releasePlayerToCountdown();
         }
     }
-
-    private final Runnable tutorialFrame = new Runnable() {
-        @Override
-        public void run() {
-            if (!tutorialActive || animating || timeExpired || levelComplete) return;
-            if (tutorialStage == TutorialStage.SOURCE) {
-                tutorialStage = TutorialStage.DESTINATION;
-                message = "NOW POUR INTO THE GOLD GLOW";
-                messageUntil = 0L;
-                handler.postDelayed(this, 1050L);
-            } else if (tutorialStage == TutorialStage.DESTINATION) {
-                GuideMove move = activeGuideMove();
-                if (move == null || !canPour(move.from, move.to)) {
-                    releasePlayerToCountdown();
-                    return;
-                }
-                tutorialStage = TutorialStage.POUR;
-                beginPour(move.from, move.to, true);
-            }
-        }
-    };
 
     private void completeDemoPour() {
         tutorialStep++;
@@ -384,30 +388,22 @@ class IQOlaView extends View {
             return;
         }
         tutorialStage = TutorialStage.SOURCE;
-        message = "WATCH MOVE " + (tutorialStep + 1) + " OF 2";
+        guideHintUntil = SystemClock.uptimeMillis() + 4_000L;
+        message = "MOVE " + (tutorialStep + 1) + " OF 2 • TAP THE CYAN GLOW";
         messageUntil = 0L;
-        handler.postDelayed(tutorialFrame, 700L);
     }
 
     private void releasePlayerToCountdown() {
         tutorialActive = false;
         tutorialStage = TutorialStage.PLAYER;
         selectedTube = -1;
+        guideHintUntil = 0L;
         message = "YOUR TURN • BEAT THE CLOCK.";
         messageUntil = 0L;
-        handler.postDelayed(startCountdownFrame, 520L);
+        countdownResumedAt = SystemClock.uptimeMillis();
+        countdownRunning = true;
+        invalidate();
     }
-
-    private final Runnable startCountdownFrame = new Runnable() {
-        @Override
-        public void run() {
-            if (!tutorialActive && !levelComplete && !timeExpired && !countdownRunning) {
-                countdownResumedAt = SystemClock.uptimeMillis();
-                countdownRunning = true;
-                invalidate();
-            }
-        }
-    };
 
     private void forcedMove(int from, int to, int amount) {
         ArrayList<Integer> source = tubes.get(from);
@@ -450,6 +446,52 @@ class IQOlaView extends View {
         invalidate();
     }
 
+    private void tapTutorialTube(int tapped) {
+        GuideMove move = activeGuideMove();
+        if (move == null || animating) {
+            releasePlayerToCountdown();
+            return;
+        }
+
+        if (tutorialStage == TutorialStage.SOURCE) {
+            if (tapped != move.from || tubes.get(tapped).isEmpty()) {
+                showTutorialPrompt("Tap the cyan-glowing tube.");
+                return;
+            }
+            selectedTube = move.from;
+            tutorialStage = TutorialStage.DESTINATION;
+            guideHintUntil = SystemClock.uptimeMillis() + 4_000L;
+            message = "GOOD • NOW TAP THE GOLD GLOW";
+            messageUntil = 0L;
+            invalidate();
+            return;
+        }
+
+        if (tutorialStage == TutorialStage.DESTINATION) {
+            if (tapped != move.to || !canPour(move.from, move.to)) {
+                showTutorialPrompt("Now tap the gold-glowing tube.");
+                return;
+            }
+            tutorialStage = TutorialStage.POUR;
+            beginPour(move.from, move.to, true);
+        }
+    }
+
+    private void showTutorialHint() {
+        if (!tutorialActive || animating) return;
+        String prompt = tutorialStage == TutorialStage.SOURCE
+                ? "Hint: tap the cyan-glowing tube."
+                : "Hint: now tap the gold-glowing tube.";
+        showTutorialPrompt(prompt);
+    }
+
+    private void showTutorialPrompt(String prompt) {
+        guideHintUntil = SystemClock.uptimeMillis() + 3_400L;
+        message = prompt;
+        messageUntil = 0L;
+        invalidate();
+    }
+
     private boolean canPour(int from, int to) {
         ArrayList<Integer> source = tubes.get(from);
         ArrayList<Integer> destination = tubes.get(to);
@@ -468,7 +510,7 @@ class IQOlaView extends View {
         animating = true;
         pourStartedAt = SystemClock.uptimeMillis();
         if (isDemo) {
-            message = "WATCH THE COLOUR FLOW";
+            message = "NICE • WATCH THE COLOUR FLOW";
             messageUntil = 0L;
         } else {
             showMessage("Perfect blend.");
@@ -796,42 +838,45 @@ class IQOlaView extends View {
         int focusIndex = toTarget ? move.to : move.from;
         int colour = toTarget ? AMBER : CYAN;
         RectF focus = tubeRects[focusIndex];
-        float pulse = dp(4) + dp(3) * (float) ((Math.sin(now / 160.0) + 1f) / 2f);
+        boolean hintVisible = now < guideHintUntil;
+        float pulse = dp(3) + dp(hintVisible ? 4 : 1.5f) * (float) ((Math.sin(now / 160.0) + 1f) / 2f);
 
         paint.setStyle(Paint.Style.FILL);
-        paint.setColor(withAlpha(colour, 28));
+        paint.setColor(withAlpha(colour, hintVisible ? 32 : 18));
         canvas.drawRoundRect(new RectF(focus.left - pulse, focus.top - pulse, focus.right + pulse, focus.bottom + pulse),
                 dp(22), dp(22), paint);
         strokePaint.setStyle(Paint.Style.STROKE);
         strokePaint.setStrokeWidth(dp(1.5f));
-        strokePaint.setColor(withAlpha(colour, 238));
+        strokePaint.setColor(withAlpha(colour, hintVisible ? 238 : 148));
         canvas.drawRoundRect(new RectF(focus.left - pulse, focus.top - pulse, focus.right + pulse, focus.bottom + pulse),
                 dp(22), dp(22), strokePaint);
 
         RectF banner = new RectF(width / 2f - dp(136), dp(155), width / 2f + dp(136), dp(181));
         drawGlassPill(canvas, banner, Color.argb(57, 13, 25, 54), withAlpha(colour, 190));
-        String instruction = tutorialStage == TutorialStage.SOURCE ? "1. START HERE" :
-                tutorialStage == TutorialStage.DESTINATION ? "2. POUR HERE" : "WATCH THE POUR";
-        drawText(canvas, "WATCH MOVE " + (tutorialStep + 1) + " OF 2  •  " + instruction,
+        String instruction = tutorialStage == TutorialStage.SOURCE ? "TAP THIS TUBE" :
+                tutorialStage == TutorialStage.DESTINATION ? "NOW TAP HERE" : "POURING";
+        drawText(canvas, "MOVE " + (tutorialStep + 1) + " OF 2  •  " + instruction,
                 banner.centerX(), banner.centerY() + dp(3), dp(9), Color.WHITE, mono, Paint.Align.CENTER);
 
-        float arrowX = focus.centerX();
-        float arrowEndY = focus.top + dp(9);
-        float arrowStartY = Math.max(banner.bottom + dp(2), arrowEndY - dp(36));
-        strokePaint.setStyle(Paint.Style.STROKE);
-        strokePaint.setStrokeWidth(dp(2));
-        strokePaint.setStrokeCap(Paint.Cap.ROUND);
-        strokePaint.setColor(withAlpha(colour, 238));
-        canvas.drawLine(arrowX, arrowStartY, arrowX, arrowEndY, strokePaint);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(withAlpha(colour, 245));
-        path.reset();
-        path.moveTo(arrowX, arrowEndY + dp(4));
-        path.lineTo(arrowX - dp(5), arrowEndY - dp(5));
-        path.lineTo(arrowX + dp(5), arrowEndY - dp(5));
-        path.close();
-        canvas.drawPath(path, paint);
-        strokePaint.setStrokeCap(Paint.Cap.BUTT);
+        if (hintVisible) {
+            float arrowX = focus.centerX();
+            float arrowEndY = focus.top + dp(9);
+            float arrowStartY = Math.max(banner.bottom + dp(2), arrowEndY - dp(36));
+            strokePaint.setStyle(Paint.Style.STROKE);
+            strokePaint.setStrokeWidth(dp(2));
+            strokePaint.setStrokeCap(Paint.Cap.ROUND);
+            strokePaint.setColor(withAlpha(colour, 238));
+            canvas.drawLine(arrowX, arrowStartY, arrowX, arrowEndY, strokePaint);
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(withAlpha(colour, 245));
+            path.reset();
+            path.moveTo(arrowX, arrowEndY + dp(4));
+            path.lineTo(arrowX - dp(5), arrowEndY - dp(5));
+            path.lineTo(arrowX + dp(5), arrowEndY - dp(5));
+            path.close();
+            canvas.drawPath(path, paint);
+            strokePaint.setStrokeCap(Paint.Cap.BUTT);
+        }
 
         if (tutorialStage == TutorialStage.DESTINATION) {
             RectF source = tubeRects[move.from];
@@ -882,20 +927,22 @@ class IQOlaView extends View {
 
     private void drawFooter(Canvas canvas) {
         float controlY = undoRect.centerY();
-        boolean available = !tutorialActive && !timeExpired && !levelComplete;
-        drawCircleControl(canvas, undoRect, available);
-        drawCircleControl(canvas, restartRect, available);
-        drawUndoIcon(canvas, undoRect.centerX(), controlY);
-        drawRestartIcon(canvas, restartRect.centerX(), controlY);
-        drawText(canvas, "UNDO", undoRect.centerX(), undoRect.bottom + dp(15), dp(8),
-                Color.argb(210, 215, 230, 255), mono, Paint.Align.CENTER);
-        drawText(canvas, "RESTART", restartRect.centerX(), restartRect.bottom + dp(15), dp(8),
-                Color.argb(210, 215, 230, 255), mono, Paint.Align.CENTER);
-
         if (tutorialActive) {
-            drawText(canvas, "GUIDED", width / 2f, controlY - dp(1), dp(18), Color.WHITE, display, Paint.Align.CENTER);
-            drawText(canvas, "START", width / 2f, controlY + dp(15), dp(8), Color.argb(187, 211, 227, 255), mono, Paint.Align.CENTER);
+            drawTutorialAction(canvas, hintRect, CYAN, "HINT");
+            drawTutorialAction(canvas, skipDemoRect, AMBER, "SKIP DEMO");
+            drawText(canvas, "GUIDED", width / 2f, controlY - dp(1), dp(17), Color.WHITE, display, Paint.Align.CENTER);
+            drawText(canvas, "MOVE " + (tutorialStep + 1) + " / 2", width / 2f, controlY + dp(15), dp(8),
+                    Color.argb(187, 211, 227, 255), mono, Paint.Align.CENTER);
         } else {
+            boolean available = !timeExpired && !levelComplete;
+            drawCircleControl(canvas, undoRect, available);
+            drawCircleControl(canvas, restartRect, available);
+            drawUndoIcon(canvas, undoRect.centerX(), controlY);
+            drawRestartIcon(canvas, restartRect.centerX(), controlY);
+            drawText(canvas, "UNDO", undoRect.centerX(), undoRect.bottom + dp(15), dp(8),
+                    Color.argb(210, 215, 230, 255), mono, Paint.Align.CENTER);
+            drawText(canvas, "RESTART", restartRect.centerX(), restartRect.bottom + dp(15), dp(8),
+                    Color.argb(210, 215, 230, 255), mono, Paint.Align.CENTER);
             drawText(canvas, String.format(Locale.US, "%02d", moves), width / 2f, controlY - dp(1), dp(25), Color.WHITE, display, Paint.Align.CENTER);
             drawText(canvas, "POURS", width / 2f, controlY + dp(15), dp(8), Color.argb(187, 211, 227, 255), mono, Paint.Align.CENTER);
         }
@@ -903,6 +950,11 @@ class IQOlaView extends View {
         drawGlassPill(canvas, adRect, Color.argb(33, 92, 114, 169), Color.argb(96, 184, 207, 255));
         drawText(canvas, "AD SPACE  ·  REMOVE ADS FOREVER — $1.49", adRect.centerX(), adRect.centerY() + dp(3),
                 dp(9), Color.argb(224, 229, 239, 255), mono, Paint.Align.CENTER);
+    }
+
+    private void drawTutorialAction(Canvas canvas, RectF rect, int accent, String title) {
+        drawGlassPill(canvas, rect, withAlpha(accent, 56), withAlpha(accent, 220));
+        drawText(canvas, title, rect.centerX(), rect.centerY() + dp(4), dp(10), Color.WHITE, display, Paint.Align.CENTER);
     }
 
     private void drawCompletion(Canvas canvas, long now) {
