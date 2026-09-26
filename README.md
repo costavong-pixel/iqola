@@ -3,13 +3,13 @@
 This repository is distributed under the GNU General Public License v3.0
 (GPL-3.0). See LICENSE.
 
-IQOla is a native Android brain-training app. Version 0.4.0 is the visual-standard prototype for the catalog: a playable Water Sort puzzle in a shared premium game frame.
+IQOla is a native Android brain-training app. Version 0.5.0 is the visual-standard prototype for the catalog: a playable Water Sort puzzle in a shared premium game frame.
 
 It includes:
 
 - A solvable, generated Water Sort level with six glass vessels
-- A guided opening that demonstrates two real moves before the player takes control
-- A large two-minute countdown that begins only after the guide finishes
+- A guided opening where the player completes two real moves step by step, with Hint and Skip controls
+- A large two-minute countdown that stays paused until the guide is completed or skipped
 - Tap-to-select play, valid colour pours, undo, restart, timeout, and completion flow
 - Liquid gradients, vessel highlights, a pour animation, and three slowly animated crystal-chamber moods
 - A deliberate shared visual direction for future IQOla games rather than separate flat game screens
