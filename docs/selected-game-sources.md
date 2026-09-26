@@ -11,7 +11,7 @@ These representatives are taken from the sidhant947/Puzzle project:
 | --- | --- | --- |
 | Stroop / colour interference | Reverse Stroop | reverse_stroop |
 | Spatial working memory | Memory Matrix | memory_matrix |
-| Moving-object tracking | Multiple Object Tracking | multiple_object_tracking |
+| Moving-object tracking | Object Track | multiple_object_tracking |
 | Inhibitory control | Stop Signal | stop_signal |
 | Anagram solving | Anagram Definition | anagram_definition |
 | Colour sorting | Water Sort | water_sort |

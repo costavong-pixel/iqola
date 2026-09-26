@@ -1,24 +1,16 @@
-# IQOla — Android MVP
+# IQOla — Android core pack
 
 This repository is distributed under the GNU General Public License v3.0
 (GPL-3.0). See LICENSE.
 
-IQOla is a native Android brain-training app with twelve short, original mini-games:
+IQOla is a native Android brain-training app. The first polished core pack has four games:
 
-- Pattern Memory
-- Quick Math
-- Digit Recall
-- Arrow Path
-- Connect Lines
-- Word Match
-- Color Focus
-- Reaction Tap
-- Number Order
-- Odd One Out
-- Sequence Logic
-- Shape Rotate
+- Reverse Stroop
+- Memory Matrix
+- Stop Signal
+- Object Track
 
-The home screen is swipeable so the larger catalog stays easy to browse. The interface is drawn in code so the MVP has an original, consistent visual style without copied game artwork or third-party image assets. Best scores are saved locally on the device.
+Each game has eight short rounds, four levels, shared score and best-score handling, a common result screen, and the same fixed banner-ad area. The interface is drawn in code so every game uses the same original visual frame without copied game artwork or third-party image assets. Best scores are saved locally on the device.
 
 ## Advertising and ad-free purchase
 
@@ -44,10 +36,10 @@ GPL-3.0 Puzzle project. The duplicate-filtering decision is recorded in
 docs/selected-game-sources.md. IQOla will retain the upstream copyright and
 license notices for any Puzzle code that is incorporated.
 
-The current Android MVP commit still contains the original 12-game Java
-implementation. The selected Puzzle games will be ported into the Android
-app in a later change; this keeps the first public repository state
-buildable and easy to review.
+The core-pack games were implemented in IQOla's shared Java canvas frame.
+Puzzle remains the documented source for the selected mechanic families; this
+build uses original IQOla presentation and implementation rather than copying
+upstream screens or artwork.
 
 ## Working identity
 
