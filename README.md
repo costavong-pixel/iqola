@@ -1,20 +1,23 @@
-# IQOla — Android core pack
+# IQOla — premium Water Sort prototype
 
 This repository is distributed under the GNU General Public License v3.0
 (GPL-3.0). See LICENSE.
 
-IQOla is a native Android brain-training app. The first polished core pack has four games:
+IQOla is a native Android brain-training app. Version 0.3.0 is the visual-standard prototype for the catalog: a playable Water Sort puzzle in a shared premium game frame.
 
-- Reverse Stroop
-- Memory Matrix
-- Stop Signal
-- Object Track
+It includes:
 
-Each game has eight short rounds, four levels, shared score and best-score handling, a common result screen, and the same fixed banner-ad area. The interface is drawn in code so every game uses the same original visual frame without copied game artwork or third-party image assets. Best scores are saved locally on the device.
+- A solvable, generated Water Sort level with six glass vessels
+- Tap-to-select play, valid colour pours, undo, restart, and completion flow
+- Liquid gradients, vessel highlights, a pour animation, and a full-screen crystal chamber
+- A deliberate shared visual direction for future IQOla games rather than separate flat game screens
+- Local best-level progress
+
+The Water Sort rule implementation and game presentation are original IQOla code. The chamber artwork is an original project asset. The earlier four-game core pack remains preserved in Git history while this release establishes the new product direction.
 
 ## Advertising and ad-free purchase
 
-This build includes a clearly labelled **test-ad space** at the bottom of game screens. It deliberately does not request a real advert yet.
+This build includes a clearly labelled **ad-space reservation** at the bottom of the game screen. It deliberately does not request a real advert yet.
 
 When the AdMob account is verified, replace the `drawAdSlot` implementation in `MainActivity.java` with the Google Mobile Ads banner view and use Google test ad IDs while developing. The “Remove ads” action is intentionally a preview message until Google Play Billing is connected for a real one-time non-consumable purchase.
 
@@ -36,8 +39,7 @@ GPL-3.0 Puzzle project. The duplicate-filtering decision is recorded in
 docs/selected-game-sources.md. IQOla will retain the upstream copyright and
 license notices for any Puzzle code that is incorporated.
 
-The core-pack games were implemented in IQOla's shared Java canvas frame.
-Puzzle remains the documented source for the selected mechanic families; this
+Puzzle remains the documented source for the selected mechanic families. This
 build uses original IQOla presentation and implementation rather than copying
 upstream screens or artwork.
 
