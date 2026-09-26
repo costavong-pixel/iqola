@@ -16,7 +16,7 @@ These representatives are taken from the sidhant947/Puzzle project:
 | Anagram solving | Anagram Definition | anagram_definition |
 | Colour sorting | Water Sort | water_sort |
 | Choice speed | Choice Reaction Time | choice_reaction_time |
-| Maze navigation | Classic Maze | classic_maze |
+| Maze navigation | Rotating Maze | rotating_maze |
 
 Puzzle is licensed under GPL-3.0. Any incorporated Puzzle source must retain
 its copyright and license notices, and IQOla's corresponding source must
@@ -33,6 +33,7 @@ the other reviewed repositories:
 
 ## Scope note
 
-This document records the selection only. The current Android MVP still uses
-its original Java implementations; porting the selected games is a separate
+This document records the selection only. The detailed mechanic-level filter
+is in `docs/game-type-dedup.md`. The current Android MVP still uses its
+original Java implementations; porting the selected games is a separate
 implementation step.
