@@ -3,25 +3,26 @@
 This repository is distributed under the GNU General Public License v3.0
 (GPL-3.0). See LICENSE.
 
-IQOla is a native Android brain-training app. Version 0.5.0 is the visual-standard prototype for the catalog: a playable Water Sort puzzle in a shared premium game frame.
+IQOla is a native Android brain-training app. Version 0.6.0 is the visual-standard prototype for the catalog: a playable Water Sort puzzle in a shared premium game frame.
 
 It includes:
 
 - A solvable, generated Water Sort level with six glass vessels
-- A guided opening where the player completes two real moves step by step, with Hint and Skip controls
+- A bold, step-by-step guided opening where the player completes two real moves, with Hint and Skip Demo controls
 - A large two-minute countdown that stays paused until the guide is completed or skipped
-- Tap-to-select play, valid colour pours, undo, restart, timeout, and completion flow
+- Tap-to-select play, valid symbol-matched pours, undo, restart, timeout, and completion flow
+- A fixed triangle, diamond, circle, or plus mark on every liquid layer, so play does not depend on colour alone
 - Liquid gradients, vessel highlights, a pour animation, and three slowly animated crystal-chamber moods
 - A deliberate shared visual direction for future IQOla games rather than separate flat game screens
 - Local best-level progress
 
 The Water Sort rule implementation and game presentation are original IQOla code. The chamber artwork is an original project asset. The earlier four-game core pack remains preserved in Git history while this release establishes the new product direction.
 
-## Advertising and ad-free purchase
+## Advertising and IQOla Plus plan
 
-This build includes a clearly labelled **ad-space reservation** at the bottom of the game screen. It deliberately does not request a real advert yet.
+This build includes a clearly labelled **ad-space reservation** at the bottom of the game screen. It deliberately does not request a real advert or billing yet.
 
-When the AdMob account is verified, replace the `drawAdSlot` implementation in `MainActivity.java` with the Google Mobile Ads banner view and use Google test ad IDs while developing. The “Remove ads” action is intentionally a preview message until Google Play Billing is connected for a real one-time non-consumable purchase.
+The planned launch model is free with ads plus IQOla Plus: an annual ad-free plan that can include ongoing games, levels, and progress features. Billing is intentionally not part of version 0.6.0.
 
 ## Open in Android Studio
 
