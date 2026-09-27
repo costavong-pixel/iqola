@@ -916,7 +916,7 @@ class IQOlaView extends View {
         String instruction = tutorialStage == TutorialStage.SOURCE ? "TAP " + guideSymbolName(move) :
                 tutorialStage == TutorialStage.DESTINATION ? "TAP TARGET TUBE" : "NICE POUR";
         drawText(canvas, "GUIDED MOVE " + (tutorialStep + 1) + " OF 2",
-                banner.centerX(), banner.top + dp(15), dp(9), Color.argb(218, 236, 255), mono, Paint.Align.CENTER);
+                banner.centerX(), banner.top + dp(15), dp(9), Color.rgb(218, 236, 255), mono, Paint.Align.CENTER);
         drawText(canvas, instruction, banner.centerX(), banner.bottom - dp(11), dp(15),
                 Color.WHITE, display, Paint.Align.CENTER);
 
