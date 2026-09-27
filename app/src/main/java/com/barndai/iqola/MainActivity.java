@@ -25,20 +25,59 @@ import java.util.Locale;
 import java.util.Random;
 
 public class MainActivity extends Activity {
-    private IQOlaView gameView;
+    private View activeView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setStatusBarColor(IQOlaView.NAVY);
-        getWindow().setNavigationBarColor(IQOlaView.NAVY);
-        gameView = new IQOlaView(this);
-        setContentView(gameView);
+        getWindow().setStatusBarColor(WaterSortView.NAVY);
+        getWindow().setNavigationBarColor(WaterSortView.NAVY);
+        showCatalog();
+    }
+
+    private void showCatalog() {
+        activeView = new GameCatalogView(this, new GameCatalogView.Listener() {
+            @Override
+            public void openWaterSort() {
+                showWaterSort();
+            }
+
+            @Override
+            public void openCoreGame(int gameIndex) {
+                showCoreGame(gameIndex);
+            }
+        });
+        setContentView(activeView);
+    }
+
+    private void showWaterSort() {
+        activeView = new WaterSortView(this);
+        setContentView(activeView);
+    }
+
+    private void showCoreGame(int gameIndex) {
+        activeView = new CoreGamesView(this, gameIndex, new Runnable() {
+            @Override
+            public void run() {
+                showCatalog();
+            }
+        });
+        setContentView(activeView);
     }
 
     @Override
     public void onBackPressed() {
-        if (!gameView.handleBack()) super.onBackPressed();
+        if (activeView instanceof WaterSortView) {
+            if (((WaterSortView) activeView).handleBack()) return;
+            showCatalog();
+            return;
+        }
+        if (activeView instanceof CoreGamesView) {
+            if (((CoreGamesView) activeView).handleBack()) return;
+            showCatalog();
+            return;
+        }
+        super.onBackPressed();
     }
 }
 
@@ -46,7 +85,7 @@ public class MainActivity extends Activity {
  * IQOla's premium Water Sort template. The opening teaches the first two pours in-context: the
  * player makes each move, while a lightweight hint and a clear skip path keep the game flowing.
  */
-class IQOlaView extends View {
+class WaterSortView extends View {
     static final int NAVY = Color.rgb(5, 8, 29);
 
     private static final int CAPACITY = 4;
@@ -128,7 +167,7 @@ class IQOlaView extends View {
     private String message = "Match the symbols, or use an empty tube.";
     private long messageUntil;
 
-    IQOlaView(Context context) {
+    WaterSortView(Context context) {
         super(context);
         density = getResources().getDisplayMetrics().density;
         preferences = context.getSharedPreferences("iqola_water_sort", Context.MODE_PRIVATE);
@@ -230,11 +269,7 @@ class IQOlaView extends View {
         return true;
     }
 
-    boolean handleBack() {
-        if (levelComplete || timeExpired) {
-            startLevel(level);
-            return true;
-        }
+        boolean handleBack() {
         return false;
     }
 
