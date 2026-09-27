@@ -1,28 +1,32 @@
-# IQOla — premium Water Sort prototype
+# IQOla — playable five-game pack
 
 This repository is distributed under the GNU General Public License v3.0
 (GPL-3.0). See LICENSE.
 
-IQOla is a native Android brain-training app. Version 0.6.0 is the visual-standard prototype for the catalog: a playable Water Sort puzzle in a shared premium game frame.
+IQOla is a native Android brain-training app. Version 0.7.0 is the first playable five-game pack in the IQOla catalog. Every card in the catalog opens a working game; there are no placeholder game tiles.
 
 It includes:
 
-- A solvable, generated Water Sort level with six glass vessels
+- Water Sort with a solvable, generated level, six glass vessels, and a guided opening
+- Reverse Stroop: read the word, not its ink
+- Memory Matrix: remember and repeat a glowing pattern
+- Stop Signal: react to GO, but hold on STOP
+- Object Track: follow one moving target through a field of dots
 - A bold, step-by-step guided opening where the player completes two real moves, with Hint and Skip Demo controls
 - A large two-minute countdown that stays paused until the guide is completed or skipped
 - Tap-to-select play, valid symbol-matched pours, undo, restart, timeout, and completion flow
 - A fixed triangle, diamond, circle, or plus mark on every liquid layer, so play does not depend on colour alone
-- Liquid gradients, vessel highlights, a pour animation, and three slowly animated crystal-chamber moods
-- A deliberate shared visual direction for future IQOla games rather than separate flat game screens
-- Local best-level progress
+- Eight short rounds and local best-score handling in each of the four core games
+- Liquid gradients, vessel highlights, a pour animation, and dark animated premium game frames
+- Local best-level and score progress
 
-The Water Sort rule implementation and game presentation are original IQOla code. The chamber artwork is an original project asset. The earlier four-game core pack remains preserved in Git history while this release establishes the new product direction.
+The Water Sort rule implementation, four core game loops, and game presentation are original IQOla code. The chamber artwork is an original project asset. The 261-mechanic catalog remains a roadmap: this build deliberately ships five tested games rather than a menu of unfinished entries.
 
 ## Advertising and IQOla Plus plan
 
 This build includes a clearly labelled **ad-space reservation** at the bottom of the game screen. It deliberately does not request a real advert or billing yet.
 
-The planned launch model is free with ads plus IQOla Plus: an annual ad-free plan that can include ongoing games, levels, and progress features. Billing is intentionally not part of version 0.6.0.
+The planned launch model is free with ads plus IQOla Plus: an annual ad-free plan that can include ongoing games, levels, and progress features. Billing is intentionally not part of version 0.7.0.
 
 ## Open in Android Studio
 
